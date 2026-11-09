@@ -1,0 +1,14 @@
+# ثيم هوية جامعة نجران (لا توجد هنا أي إعدادات تعطّل حماية CORS/XSRF)
+[theme]
+base = "light"
+primaryColor = "#1C3D6A"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F6FA"
+textColor = "#1F2933"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
