@@ -1,0 +1,133 @@
+/* النسخة الثانية (مقارنة حية + تحكم زمني) — مبنية على classroom3d.css دون تغيير الهوية.
+   واجهة HUD للقاعة الافتراضية — ألوان هوية جامعة نجران (#1C3D6A، #CC9E0A، #009673) */
+html, body { margin: 0; background: transparent; }
+#zl3d { --navy: #1C3D6A; --gold: #CC9E0A; --green: #009673; font-family: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif; color: #FFFFFF; }
+#zl3d .zl-vp {
+  --sky1: #9CC3E8; --sky2: #E7F0F8;
+  position: relative; width: 100%; height: 560px; overflow: hidden; border-radius: 16px;
+  background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 62%, #D9C8A5 62.1%, #CDBB97 100%);
+  font-family: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif; color: #FFFFFF; user-select: none;
+  transition: background 0.6s;
+}
+#zl3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+#zl3d canvas:active { cursor: grabbing; }
+.zl-hud, .zl-cam, .zl-timeline, .zl-orient, .zl-note {
+  position: absolute; background: rgba(12, 30, 56, 0.84); border: 1px solid rgba(204, 158, 10, 0.35);
+  border-radius: 14px; box-shadow: 0 8px 24px rgba(10, 20, 40, 0.28); backdrop-filter: blur(6px);
+}
+.zl-hud { top: 14px; right: 14px; width: 232px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.zl-hud-head { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.zl-hud-head b { flex: 1; }
+.zl-clock { font-weight: 800; font-size: 15px; color: var(--gold); font-variant-numeric: tabular-nums; direction: ltr; }
+.zl-dot { width: 9px; height: 9px; border-radius: 50%; background: #64748B; }
+.zl-dot.on { background: #3DD6A6; box-shadow: 0 0 0 4px rgba(61, 214, 166, 0.25); }
+.zl-temp { display: flex; align-items: baseline; gap: 8px; }
+.zl-temp span { font-size: 40px; font-weight: 800; line-height: 1.1; direction: ltr; }
+.zl-temp small { color: #C9D4E4; font-size: 12px; }
+.zl-chip { align-self: flex-start; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); color: #DCE4EF; }
+.zl-chip.ok { background: rgba(0, 150, 115, 0.28); color: #7CF0C8; }
+.zl-chip.bad { background: rgba(255, 138, 128, 0.22); color: #FFB4AB; }
+.zl-row { display: flex; justify-content: space-between; gap: 8px; color: #C9D4E4; }
+.zl-row b { color: #FFFFFF; direction: ltr; font-variant-numeric: tabular-nums; }
+.zl-bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.14); overflow: hidden; margin-top: -2px; }
+.zl-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #4AA3DF, #8DD3FF); transition: width 0.25s; }
+.zl-ring { display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 8px; margin-top: 2px; }
+.zl-ring svg { width: 58px; height: 58px; flex: 0 0 58px; }
+.zl-ring div { display: flex; flex-direction: column; }
+.zl-ring b { font-size: 20px; }
+.zl-ring small { color: #C9D4E4; font-size: 11px; }
+.zl-cam { top: 14px; left: 14px; padding: 6px; display: flex; align-items: center; gap: 6px; }
+.zl-cam button, .zl-reset, .zl-speed {
+  width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF; font-size: 17px; cursor: pointer; font-family: inherit;
+}
+.zl-cam button:hover, .zl-reset:hover, .zl-speed:hover { border-color: var(--gold); }
+.zl-hint { font-size: 11px; color: #C9D4E4; padding: 0 6px; max-width: 210px; line-height: 1.4; }
+.zl-orient { top: 66px; left: 14px; padding: 6px 12px 6px 8px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #DCE4EF; }
+.zl-orient svg { width: 30px; height: 30px; color: #FFFFFF; }
+.zl-timeline { left: 14px; right: 260px; bottom: 14px; padding: 8px 10px 6px; display: flex; flex-direction: column; gap: 4px; }
+.zl-tl-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.zl-play { height: 40px; padding: 0 16px; border-radius: 10px; border: 0; background: var(--gold); color: #1C2B40; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.zl-track { position: relative; padding-top: 6px; }
+.zl-track input { width: 100%; accent-color: var(--gold); margin: 0; position: relative; z-index: 1; }
+.zl-lecture { position: absolute; top: 2px; height: 22px; background: rgba(204, 158, 10, 0.28); border-radius: 4px; }
+.zl-ticks { display: flex; justify-content: space-between; font-size: 10px; color: #C9D4E4; }
+.zl-note { left: 14px; top: 112px; max-width: 230px; padding: 8px 10px; font-size: 10.5px; line-height: 1.5; color: #C9D4E4; }
+.zl-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; color: #1C3D6A; font-weight: 700; background: #F4F6F9; }
+@media (max-width: 900px) {
+  .zl-hud { width: 190px; font-size: 12px; }
+  .zl-temp span { font-size: 30px; }
+  .zl-note, .zl-hint { display: none; }
+  .zl-timeline { width: calc(100% - 28px); }
+}
+.zl-fallback[hidden] { display: none; }
+
+/* ---- v2: لوحة الزمن الموسّعة (نفس أسلوب الأزرار الحالية) ---- */
+.zl-steps, .zl-speeds, .zl-view { display: flex; gap: 4px; align-items: center; }
+.zl-steps button, .zl-speeds button, .zl-view button {
+  height: 32px; min-width: 40px; padding: 0 8px; border-radius: 9px; border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08); color: #FFFFFF; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.zl-steps button:hover, .zl-speeds button:hover, .zl-view button:hover { border-color: var(--gold); }
+.zl-speeds button[aria-pressed="true"], .zl-view button[aria-pressed="true"] { background: var(--gold); color: #1C2B40; border-color: var(--gold); }
+.zl-speeds { margin-inline-start: auto; }
+.zl-now { min-width: 52px; text-align: center; font-weight: 800; font-size: 16px; color: var(--gold); direction: ltr; font-variant-numeric: tabular-nums; }
+.zl-view { position: absolute; bottom: 164px; left: 14px; padding: 5px 6px 5px 8px; font-size: 12px; color: #C9D4E4;
+  background: rgba(12, 30, 56, 0.84); border: 1px solid rgba(204, 158, 10, 0.35); border-radius: 14px; box-shadow: 0 8px 24px rgba(10, 20, 40, 0.28); backdrop-filter: blur(6px); }
+.zl-view span { padding: 0 4px; }
+
+/* ---- v2: شريط المقارنة الحية أسفل القاعة (لوحة بنفس طابع HUD) ---- */
+.zl-deck { margin-top: 10px; background: linear-gradient(180deg, #13294A, #0E2240); border: 1px solid rgba(204, 158, 10, 0.35);
+  border-radius: 16px; padding: 12px 14px; box-shadow: 0 8px 24px rgba(10, 20, 40, 0.22); }
+.zl-deck-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; font-size: 14px; }
+.zl-deck-head b span { color: var(--gold); font-variant-numeric: tabular-nums; }
+.zl-verdict { font-size: 12.5px; font-weight: 800; padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); color: #DCE4EF; }
+.zl-verdict.ok { background: rgba(0, 150, 115, 0.30); color: #7CF0C8; }
+.zl-verdict.bad { background: rgba(255, 138, 128, 0.22); color: #FFB4AB; }
+.zl-verdict.warn { background: rgba(232, 199, 102, 0.22); color: #F2D88A; }
+.zl-deck-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 12px; align-items: stretch; }
+.zl-cmp-wrap { grid-column: 1 / -1; }
+.zl-cmp-wrap { overflow-x: auto; }
+.zl-cmp { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.zl-cmp th, .zl-cmp td { padding: 5px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: center; white-space: nowrap; }
+.zl-cmp thead th { color: #C9D4E4; font-weight: 700; font-size: 11.5px; }
+.zl-cmp thead th.z { color: #3DD6A6; } .zl-cmp thead th.c { color: #C9D4E4; }
+.zl-cmp tbody th { text-align: right; color: #C9D4E4; font-weight: 600; white-space: normal; }
+.zl-cmp td { color: #FFFFFF; font-variant-numeric: tabular-nums; font-weight: 700; }
+.zl-cmp td.d { color: #E8C766; }
+.zl-cmp tr.hl td, .zl-cmp tr.hl th { background: rgba(204, 158, 10, 0.10); }
+.zl-st { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); color: #DCE4EF; }
+.zl-st.ok { background: rgba(0, 150, 115, 0.28); color: #7CF0C8; }
+.zl-st.hot { background: rgba(255, 138, 128, 0.22); color: #FFB4AB; }
+.zl-st.cold { background: rgba(141, 179, 234, 0.22); color: #B9D0F5; }
+.zl-kpis { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.zl-kpi { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.10); border-radius: 12px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.zl-kpi small { color: #C9D4E4; font-size: 11px; }
+.zl-kpi b { font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
+.zl-kpi > span { color: #A9B6C8; font-size: 10.5px; }
+.zl-kpi.pos { border-color: rgba(61, 214, 166, 0.45); } .zl-kpi.pos b { color: #7CF0C8; }
+.zl-kpi.neg { border-color: rgba(255, 138, 128, 0.45); } .zl-kpi.neg b { color: #FFB4AB; }
+.zl-spark { background: rgba(255, 255, 255, 0.04); border-radius: 12px; padding: 4px; }
+.zl-spark svg { direction: ltr; width: 100%; height: auto; max-height: 190px; display: block; margin: 0 auto; }
+.zl-spark text { fill: #A9B6C8; font-size: 9.5px; font-family: inherit; }
+.zl-spark text.tt { fill: #DCE4EF; font-weight: 700; font-size: 10.5px; }
+@media (max-width: 900px) {
+  .zl-timeline { right: 14px; }
+  .zl-view { bottom: 150px; }
+  .zl-deck-grid { grid-template-columns: 1fr; }
+}
+.zl-deck .n { unicode-bidi: isolate; direction: ltr; display: inline-block; }
+@media (max-width: 600px) { .zl-cmp { font-size: 11.5px; } .zl-cmp th, .zl-cmp td { padding: 5px 4px; } .zl-cmp thead th { white-space: normal; } }
+.zl-power { grid-column: 1 / -1; background: rgba(255, 255, 255, 0.04); border-radius: 12px; padding: 4px; }
+.zl-power svg { direction: ltr; width: 100%; height: auto; max-height: 300px; display: block; }
+.zl-power text { fill: #A9B6C8; font-size: 10.5px; font-family: inherit; }
+.zl-power text.tt { fill: #DCE4EF; font-weight: 700; font-size: 12px; }
+.zl-power text.lb { fill: #E8C766; font-weight: 700; }
+.zl-power text.ev { fill: #7CF0C8; font-weight: 700; font-size: 11px; }
+@media (max-width: 700px) { .zl-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.zl-power text.ln { fill: #DCE4EF; font-weight: 800; font-size: 11.5px; }
+.zl-power text.nv { fill: #FFFFFF; font-weight: 800; font-size: 11px; }
+.zl-cmp tr.sub td, .zl-cmp tr.sub th { border-bottom-color: rgba(204, 158, 10, 0.35); }
+.zl-kpi.zl-split b { font-size: 15px; line-height: 1.6; }
+@media (max-width: 600px) { .zl-power { overflow-x: auto; } .zl-power svg { min-width: 600px; max-height: none; } }
