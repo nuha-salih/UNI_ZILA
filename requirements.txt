@@ -1,0 +1,8 @@
+# ZILAL AI — university prototype. Target: Python 3.12 (Windows / Streamlit Community Cloud).
+# Ranges are deliberately bounded to stable major versions.
+streamlit>=1.40,<2.0      # UI framework (tables are rendered as HTML; st.dataframe/pyarrow path is not used)
+plotly>=5.24,<7.0         # charts (figures are built as plain dicts and rendered by st.plotly_chart)
+numpy>=1.26,<3.0
+pandas>=2.2,<4.0
+scikit-learn>=1.5,<2.0    # Random Forest + Gradient Boosting
+reportlab>=4.2,<6.0       # PDF reports (Arabic shaping is done in-project; no extra bidi packages)
